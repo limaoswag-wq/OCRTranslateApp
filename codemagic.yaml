@@ -28,24 +28,9 @@
             -archivePath build/OCRTranslate.xcarchive \
             -destination "generic/platform=iOS" \
             CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            \
             DEVELOPMENT_TEAM=""
-
-      - name: Debug archive contents
-        script: |
-          echo "=== Archive Products ==="
-          ls -la build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/
-          echo ""
-          echo "=== PlugIns directory ==="
-          ls -la build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/ 2>&1 || echo "NO PlugIns DIRECTORY!"
-          echo ""
-          echo "=== Extension Info.plist ==="
-          cat build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/ScreenTranslator.appex/Info.plist 2>&1 || echo "NO Info.plist!"
-          echo ""
-          echo "=== Extension executable ==="
-          file build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/ScreenTranslator.appex/ScreenTranslator 2>&1 || echo "NO executable!"
 
       - name: Package IPA
         script: |
