@@ -25,10 +25,22 @@ jobs:
     - name: Generate Xcode project
       run: xcodegen generate
 
-    - name: Show project info
-      run: xcodebuild -project OCRTranslate.xcodeproj -list
+    - name: Build (show errors)
+      run: |
+        xcodebuild build \
+          -project OCRTranslate.xcodeproj \
+          -scheme OCRTranslate \
+          -configuration Release \
+          -destination "generic/platform=iOS" \
+          CODE_SIGN_IDENTITY="-" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM="" \
+          ENABLE_BITCODE=NO \
+          2>&1 | grep -E "error:|Error:|fatal" | head -50
 
     - name: Build Archive
+      if: success()
       run: |
         xcodebuild clean archive \
           -project OCRTranslate.xcodeproj \
