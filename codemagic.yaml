@@ -51,7 +51,7 @@
           
           # Create IPA using standard zip (not ditto)
           cd "$CM_BUILD_DIR"
-          zip -r OCRTranslate.ipa Payload/
+          zip -r OCRTranslate.ipa Payload
           
           # Verify IPA contents
           echo "=== IPA contents ==="
