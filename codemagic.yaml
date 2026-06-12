@@ -1,0 +1,49 @@
+﻿workflows:
+  ocr-translate-ipa:
+    name: Build OCR Translate IPA
+    max_build_duration: 30
+    environment:
+      xcode: 15.4
+      cocoapods: default
+    scripts:
+      - name: Install xcodegen
+        script: |
+          curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.35.0/xcodegen.zip -o xcodegen.zip
+          unzip -o xcodegen.zip
+          sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
+          sudo chmod +x /usr/local/bin/xcodegen
+          xcodegen version
+
+      - name: Generate Xcode project
+        script: xcodegen generate
+
+      - name: Build archive
+        script: |
+          set -o pipefail
+          xcodebuild clean archive \
+            -project OCRTranslate.xcodeproj \
+            -scheme OCRTranslate \
+            -configuration Release \
+            -archivePath build/OCRTranslate.xcarchive \
+            -destination "generic/platform=iOS" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            ENABLE_BITCODE=NO
+
+      - name: Package IPA
+        script: |
+          cd build/OCRTranslate.xcarchive/Products
+          mkdir -p Payload
+          mv Applications/OCRTranslate.app Payload/
+          zip -r "$CM_BUILD_DIR/OCRTranslate.ipa" Payload
+
+    artifacts:
+      - build/OCRTranslate.xcarchive
+      - OCRTranslate.ipa
+
+    publishing:
+      email:
+        recipients:
+          - user@example.com
