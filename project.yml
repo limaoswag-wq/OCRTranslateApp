@@ -1,0 +1,59 @@
+﻿name: OCRTranslate
+options:
+  bundleIdPrefix: com.limaoswag
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "15.4"
+  createIntermediateGroups: true
+  defaultConfig: Release
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+
+targets:
+  OCRTranslate:
+    type: application
+    platform: iOS
+    sources:
+      - path: OCRTranslate
+        excludes:
+          - "**/.DS_Store"
+    info:
+      path: OCRTranslate/Info.plist
+    entitlements:
+      path: OCRTranslate/OCRTranslate.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.limaoswag.ocrtranslate
+        CODE_SIGN_ENTITLEMENTS: OCRTranslate/OCRTranslate.entitlements
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: OCRTranslate/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: "1.0.0"
+    dependencies:
+      - target: ScreenTranslator
+        embed: true
+
+  ScreenTranslator:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ScreenTranslator
+        excludes:
+          - "**/.DS_Store"
+    info:
+      path: ScreenTranslator/Info.plist
+    entitlements:
+      path: ScreenTranslator/ScreenTranslator.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.limaoswag.ocrtranslate.ScreenTranslator
+        CODE_SIGN_ENTITLEMENTS: ScreenTranslator/ScreenTranslator.entitlements
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: ScreenTranslator/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: "1.0.0"

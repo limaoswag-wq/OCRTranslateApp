@@ -14,20 +14,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Select Xcode
-      run: |
-        sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
-        xcodebuild -version
+    - name: Install xcodegen
+      run: brew install xcodegen
 
-    - name: List project structure
-      run: |
-        find . -name "*.swift" -o -name "*.plist" -o -name "*.pbxproj" -o -name "*.xcscheme" | sort
-        echo "---"
-        file OCRTranslate.xcodeproj/project.pbxproj
-        head -5 OCRTranslate.xcodeproj/project.pbxproj
+    - name: Generate Xcode project
+      run: xcodegen generate
 
-    - name: Show schemes
-      run: xcodebuild -project OCRTranslate.xcodeproj -list
+    - name: Show project info
+      run: |
+        xcodebuild -project OCRTranslate.xcodeproj -list
 
     - name: Build Archive
       run: |
