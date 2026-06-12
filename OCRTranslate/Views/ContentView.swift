@@ -7,7 +7,7 @@ struct ContentView: View {
     @State private var showBroadcastPicker = false
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ZStack {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
