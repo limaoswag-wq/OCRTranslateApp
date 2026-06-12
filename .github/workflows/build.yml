@@ -1,0 +1,49 @@
+﻿name: Build IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+    - name: Build for Archive
+      run: |
+        xcodebuild clean archive \
+          -project OCRTranslate.xcodeproj \
+          -scheme OCRTranslate \
+          -configuration Release \
+          -archivePath build/OCRTranslate.xcarchive \
+          -destination "generic/platform=iOS" \
+          CODE_SIGN_IDENTITY="-" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM="" \
+          ENABLE_BITCODE=NO \
+          | xcpretty
+
+    - name: Package IPA
+      run: |
+        cd build/OCRTranslate.xcarchive/Products
+        mkdir -p Payload
+        mv Applications/OCRTranslate.app Payload/
+        zip -r ../../OCRTranslate.ipa Payload
+        cd ../..
+        ls -la OCRTranslate.ipa
+
+    - name: Upload IPA Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: OCRTranslate-IPA
+        path: build/OCRTranslate.ipa
+        retention-days: 90
