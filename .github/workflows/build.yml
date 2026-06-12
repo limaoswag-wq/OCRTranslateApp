@@ -14,15 +14,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install xcodegen
-      run: brew install xcodegen
+    - name: Install xcodegen 2.35.0
+      run: |
+        curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.35.0/xcodegen.zip -o xcodegen.zip
+        unzip xcodegen.zip -d /usr/local/bin
+        chmod +x /usr/local/bin/xcodegen
+        xcodegen version
 
     - name: Generate Xcode project
       run: xcodegen generate
 
     - name: Show project info
-      run: |
-        xcodebuild -project OCRTranslate.xcodeproj -list
+      run: xcodebuild -project OCRTranslate.xcodeproj -list
 
     - name: Build Archive
       run: |
