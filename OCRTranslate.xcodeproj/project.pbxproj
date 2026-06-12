@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -62,7 +62,7 @@
 		132093F970CB4309A8F8B1E4 /* SampleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHandler.swift; sourceTree = <group>; };
 		0162E1E4BF484E72B9A06A50 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = <group>; };
 		57A750C878B74C738AE9BE1E /* ScreenTranslator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenTranslator.entitlements; sourceTree = <group>; };
-		6E2AE3C603CC4AF3B184E06D /* OCRTranslate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OCRTranslate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E2AE3C603CC4AF3B184E06D /* OCRTranslate.app */ = {isa = PBXFileReference; explicitFileType = "wrapper.application"; includeInIndex = 0; path = OCRTranslate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		15DD14DBCBD546498BCE60B9 /* ScreenTranslator.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenTranslator.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
