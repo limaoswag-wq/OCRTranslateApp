@@ -5,6 +5,7 @@
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.com.limaoswag.ocrtranslate</string>
+		<string>group.com.limaoswag.ocrtranslate.ScreenTranslator</string>
 	</array>
 </dict>
 </plist>

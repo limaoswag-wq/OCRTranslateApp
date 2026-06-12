@@ -32,16 +32,30 @@
             CODE_SIGNING_ALLOWED=NO \
             DEVELOPMENT_TEAM=""
 
-      - name: Package IPA
+      - name: Debug and Package IPA
         script: |
           set -euo pipefail
           cd build/OCRTranslate.xcarchive/Products
           rm -rf Payload
           mkdir -p Payload
           cp -R Applications/OCRTranslate.app Payload/
-          test -d Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex
-          ditto -c -k --sequesterRsrc --keepParent Payload "$CM_BUILD_DIR/OCRTranslate.ipa"
+          
+          # Verify Extension exists
+          echo "=== Verify Extension ==="
+          ls -la Payload/OCRTranslate.app/PlugIns/
+          ls -la Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex/
+          
+          # Verify Extension Info.plist
+          echo "=== Extension Info.plist ==="
+          plutil -p Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex/Info.plist
+          
+          # Create IPA using standard zip (not ditto)
+          cd "$CM_BUILD_DIR"
+          zip -r OCRTranslate.ipa Payload/
+          
+          # Verify IPA contents
+          echo "=== IPA contents ==="
+          unzip -l OCRTranslate.ipa | grep -E "PlugIns|ScreenTranslator"
 
     artifacts:
-      - build/OCRTranslate.xcarchive
       - OCRTranslate.ipa
