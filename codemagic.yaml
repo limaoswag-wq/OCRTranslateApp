@@ -3,12 +3,11 @@
     name: Build OCR Translate IPA
     max_build_duration: 30
     environment:
-      xcode: 15.2
-      cocoapods: default
+      xcode: 16.0
     scripts:
       - name: Install xcodegen
         script: |
-          curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.35.0/xcodegen.zip -o xcodegen.zip
+          curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.40.0/xcodegen.zip -o xcodegen.zip
           unzip -o xcodegen.zip
           sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
           sudo chmod +x /usr/local/bin/xcodegen
@@ -42,8 +41,3 @@
     artifacts:
       - build/OCRTranslate.xcarchive
       - OCRTranslate.ipa
-
-    publishing:
-      email:
-        recipients:
-          - user@example.com
