@@ -165,7 +165,7 @@ struct ContentView: View {
     private func instructionRow(icon: String, text: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
-                .foregroundStyle(.accent)
+                .foregroundStyle(.accentColor)
                 .font(.body)
             Text(text)
                 .font(.subheadline)
