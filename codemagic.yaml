@@ -8,7 +8,6 @@
       - name: Install xcodegen
         script: |
           curl -L --connect-timeout 30 --max-time 120 https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip -o xcodegen.zip
-          ls -la xcodegen.zip
           unzip -o xcodegen.zip
           sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
           sudo chmod +x /usr/local/bin/xcodegen
@@ -18,7 +17,6 @@
         script: |
           xcodegen generate 2>&1
           echo "Exit code: $?"
-          ls -la OCRTranslate.xcodeproj/
 
       - name: Build archive
         script: |
@@ -28,7 +26,11 @@
             -scheme OCRTranslate \
             -configuration Release \
             -archivePath build/OCRTranslate.xcarchive \
-            -destination "generic/platform=iOS"
+            -destination "generic/platform=iOS" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM=""
 
       - name: Package IPA
         script: |
