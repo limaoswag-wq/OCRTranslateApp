@@ -7,14 +7,18 @@
     scripts:
       - name: Install xcodegen
         script: |
-          curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip -o xcodegen.zip
+          curl -L --connect-timeout 30 --max-time 120 https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip -o xcodegen.zip
+          ls -la xcodegen.zip
           unzip -o xcodegen.zip
           sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
           sudo chmod +x /usr/local/bin/xcodegen
           xcodegen version
 
       - name: Generate Xcode project
-        script: xcodegen generate
+        script: |
+          xcodegen generate --spec project.yml 2>&1
+          echo "xcodegen exit code: $?"
+          ls -la OCRTranslate.xcodeproj/
 
       - name: Build archive
         script: |
