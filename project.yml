@@ -23,6 +23,12 @@ targets:
       - path: OCRTranslate
         excludes:
           - "**/.DS_Store"
+          - "Models"
+          - "Services"
+      - path: Shared
+        group: Shared
+        excludes:
+          - "**/.DS_Store"
     info:
       path: OCRTranslate/Info.plist
     entitlements:
@@ -46,6 +52,10 @@ targets:
     platform: iOS
     sources:
       - path: ScreenTranslator
+        excludes:
+          - "**/.DS_Store"
+      - path: Shared
+        group: Shared
         excludes:
           - "**/.DS_Store"
     info:

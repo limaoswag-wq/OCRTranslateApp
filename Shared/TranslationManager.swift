@@ -50,21 +50,26 @@ class TranslationManager: ObservableObject {
     // MARK: - Apple Translation (Offline)
     
     private func translateWithApple(_ text: String, completion: @escaping (String?) -> Void) {
-        // Use NLTranslator for on-device translation
-        let translator = NLTranslator()
-        
-        let sourceLang: NLLanguage = detectLanguage(text) ?? .english
-        let targetLang: NLLanguage = languageCodeToNLLanguage(config.targetLanguage) ?? .simplifiedChinese
-        
-        translator.translate(text, from: sourceLang, to: targetLang) { result, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("[Translation] Apple error: \(error)")
-                    // Fallback: return the text with a note
-                    completion("[Apple翻译不可用] \(text)")
-                    return
+        // Use NLTranslator if available (iOS 17+), otherwise detect language only
+        if #available(iOS 17.0, *) {
+            let translator = NLTranslator()
+            let sourceLang = detectLanguage(text) ?? .english
+            let targetLang = languageCodeToNLLanguage(config.targetLanguage) ?? .simplifiedChinese
+            
+            translator.translate(text, from: sourceLang, to: targetLang) { result, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("[Translation] Apple error: \(error)")
+                        completion("[Apple翻译不可用: \(error.localizedDescription)]")
+                        return
+                    }
+                    completion(result)
                 }
-                completion(result)
+            }
+        } else {
+            // iOS 15-16: NLTranslator not available, use cloud APIs instead
+            DispatchQueue.main.async {
+                completion("[Apple翻译需要iOS 17+，请使用其他翻译引擎]")
             }
         }
     }
@@ -77,7 +82,6 @@ class TranslationManager: ObservableObject {
             return
         }
         
-        let sourceLang = config.sourceLanguage == "auto" ? "" : config.sourceLanguage
         let targetLang = config.targetLanguage == "zh-Hans" ? "zh-CN" : config.targetLanguage
         
         var components = URLComponents(string: "https://translation.googleapis.com/language/translate/v2")!
@@ -87,8 +91,8 @@ class TranslationManager: ObservableObject {
             URLQueryItem(name: "key", value: config.apiKey),
             URLQueryItem(name: "format", value: "text")
         ]
-        if !sourceLang.isEmpty {
-            components.queryItems?.append(URLQueryItem(name: "source", value: sourceLang))
+        if config.sourceLanguage != "auto" {
+            components.queryItems?.append(URLQueryItem(name: "source", value: config.sourceLanguage))
         }
         
         var request = URLRequest(url: components.url!)
@@ -153,24 +157,6 @@ class TranslationManager: ObservableObject {
             completion("[请配置腾讯翻译 SecretId 和 SecretKey]")
             return
         }
-        // Tencent Cloud API v3 - simplified implementation
-        let sourceLang = config.sourceLanguage == "auto" ? "auto" : config.sourceLanguage
-        let targetLang = config.targetLanguage == "zh-Hans" ? "zh" : config.targetLanguage
-        
-        var request = URLRequest(url: URL(string: "https://tmt.tencentcloudapi.com")!)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let body: [String: Any] = [
-            "SourceText": text,
-            "Source": sourceLang,
-            "Target": targetLang,
-            "ProjectId": 0
-        ]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        
-        // Note: Full Tencent Cloud signature is complex; simplified here
-        // Users should use the Tencent Cloud SDK in production
         completion("[腾讯翻译需要完整SDK，请使用其他引擎]")
     }
     
@@ -185,7 +171,6 @@ class TranslationManager: ObservableObject {
         let model = config.aiModel.isEmpty ? "gpt-3.5-turbo" : config.aiModel
         let prompt = config.aiPrompt.isEmpty ? "Translate the following text to \(config.targetLanguage):" : config.aiPrompt
         
-        // Build JSON batch for the AI prompt
         let textDict = [text: ""]
         guard let jsonData = try? JSONSerialization.data(withJSONObject: textDict),
               let jsonString = String(data: jsonData, encoding: .utf8) else {
@@ -193,13 +178,11 @@ class TranslationManager: ObservableObject {
             return
         }
         
-        let userMessage = jsonString
-        
         let body: [String: Any] = [
             "model": model,
             "messages": [
                 ["role": "system", "content": prompt],
-                ["role": "user", "content": userMessage]
+                ["role": "user", "content": jsonString]
             ],
             "temperature": 0.3
         ]
@@ -229,13 +212,11 @@ class TranslationManager: ObservableObject {
                     return
                 }
                 
-                // Try to parse the AI response as JSON (matching the prompt format)
                 if let contentData = content.data(using: .utf8),
                    let resultDict = try? JSONSerialization.jsonObject(with: contentData) as? [String: String],
                    let translated = resultDict[text] {
                     completion(translated)
                 } else {
-                    // If not JSON, return raw content
                     completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
                 }
             }
@@ -274,7 +255,7 @@ class TranslationManager: ObservableObject {
     }
 }
 
-// MARK: - MD5 Helper (for Baidu Translate)
+// MARK: - MD5 Helper
 
 import CryptoKit
 
