@@ -29,7 +29,7 @@
             -destination "generic/platform=iOS" \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
+            \
             DEVELOPMENT_TEAM=""
 
       - name: Debug archive contents
