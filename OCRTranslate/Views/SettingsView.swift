@@ -1,10 +1,11 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var translationManager = TranslationManager.shared
-    @State private var showAISettings = false
-    
+    @State private var showRegionEditor = false
+    @State private var ocrRegion = OCRRegionConfig.load()
+
     private let supportedLanguages: [(code: String, name: String)] = [
         ("auto", "自动检测"),
         ("zh-Hans", "简体中文"),
@@ -38,11 +39,10 @@ struct SettingsView: View {
         ("ro", "Română"),
         ("uk", "Українська")
     ]
-    
+
     var body: some View {
         NavigationView {
             Form {
-                // Translation Engine Selection
                 Section {
                     Picker("翻译引擎", selection: $translationManager.config.engineType) {
                         ForEach(TranslationEngineType.allCases, id: \.self) { engine in
@@ -57,8 +57,7 @@ struct SettingsView: View {
                 } footer: {
                     Text("Apple 翻译支持离线使用，需在设置中下载语言包。其他引擎需要网络连接。")
                 }
-                
-                // Language Settings
+
                 Section("语言设置") {
                     Picker("源语言", selection: $translationManager.config.sourceLanguage) {
                         ForEach(supportedLanguages, id: \.code) { lang in
@@ -68,7 +67,7 @@ struct SettingsView: View {
                     .onChange(of: translationManager.config.sourceLanguage) { _ in
                         translationManager.saveSettings()
                     }
-                    
+
                     Picker("目标语言", selection: $translationManager.config.targetLanguage) {
                         ForEach(supportedLanguages.filter { $0.code != "auto" }, id: \.code) { lang in
                             Text(lang.name).tag(lang.code)
@@ -78,8 +77,7 @@ struct SettingsView: View {
                         translationManager.saveSettings()
                     }
                 }
-                
-                // API Settings (conditional)
+
                 if translationManager.config.engineType != .apple {
                     Section {
                         if translationManager.config.engineType == .openai {
@@ -91,9 +89,27 @@ struct SettingsView: View {
                         Text("API 配置")
                     }
                 }
-                
-                // OCR Settings
+
                 Section {
+                    Button {
+                        ocrRegion = OCRRegionConfig.load()
+                        showRegionEditor = true
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("识别区域")
+                                Text(ocrRegion.summaryText)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .foregroundColor(.primary)
+
                     HStack {
                         Text("识别频率")
                         Spacer()
@@ -109,10 +125,9 @@ struct SettingsView: View {
                 } header: {
                     Text("OCR 设置")
                 } footer: {
-                    Text("当屏幕文字变化超过阈值时触发翻译，避免重复翻译相同内容。")
+                    Text("拖拽设置只影响 ScreenTranslator 扩展截取并识别的屏幕区域。")
                 }
-                
-                // About
+
                 Section {
                     HStack {
                         Text("版本")
@@ -133,11 +148,14 @@ struct SettingsView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showRegionEditor, onDismiss: {
+                ocrRegion = OCRRegionConfig.load()
+            }) {
+                OCRRegionEditorView(region: $ocrRegion)
+            }
         }
     }
-    
-    // MARK: - Cloud API Settings
-    
+
     private var cloudAPISettingsView: some View {
         Group {
             SecureField("API Key", text: $translationManager.config.apiKey)
@@ -145,7 +163,7 @@ struct SettingsView: View {
                 .onChange(of: translationManager.config.apiKey) { _ in
                     translationManager.saveSettings()
                 }
-            
+
             if translationManager.config.engineType == .baidu {
                 SecureField("密钥", text: $translationManager.config.apiSecret)
                     .textContentType(.password)
@@ -153,7 +171,7 @@ struct SettingsView: View {
                         translationManager.saveSettings()
                     }
             }
-            
+
             if translationManager.config.engineType == .tencent {
                 SecureField("SecretKey", text: $translationManager.config.apiSecret)
                     .textContentType(.password)
@@ -163,9 +181,7 @@ struct SettingsView: View {
             }
         }
     }
-    
-    // MARK: - AI Settings
-    
+
     private var aiSettingsView: some View {
         Group {
             TextField("API 地址", text: $translationManager.config.apiEndpoint)
@@ -175,24 +191,24 @@ struct SettingsView: View {
                 .onChange(of: translationManager.config.apiEndpoint) { _ in
                     translationManager.saveSettings()
                 }
-            
+
             SecureField("API Key", text: $translationManager.config.apiKey)
                 .textContentType(.password)
                 .onChange(of: translationManager.config.apiKey) { _ in
                     translationManager.saveSettings()
                 }
-            
+
             TextField("模型名称", text: $translationManager.config.aiModel)
                 .autocapitalization(.none)
                 .onChange(of: translationManager.config.aiModel) { _ in
                     translationManager.saveSettings()
                 }
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("Prompt 提示词")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
+
                 TextEditor(text: $translationManager.config.aiPrompt)
                     .frame(minHeight: 120)
                     .font(.caption)
