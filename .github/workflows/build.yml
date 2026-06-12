@@ -17,8 +17,9 @@ jobs:
     - name: Install xcodegen 2.35.0
       run: |
         curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.35.0/xcodegen.zip -o xcodegen.zip
-        unzip xcodegen.zip -d /usr/local/bin
-        chmod +x /usr/local/bin/xcodegen
+        unzip -o xcodegen.zip
+        sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
+        sudo chmod +x /usr/local/bin/xcodegen
         xcodegen version
 
     - name: Generate Xcode project
