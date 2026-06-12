@@ -75,11 +75,12 @@ class SampleHandler: RPBroadcastSampleHandler {
         let context = CIContext()
         
         let extent = ciImage.extent
+        let region = translationManager.config.ocrRegion.cropRect
         let cropRect = CGRect(
-            x: extent.width * 0.05,
-            y: extent.height * 0.05,
-            width: extent.width * 0.9,
-            height: extent.height * 0.9
+            x: extent.width * region.origin.x,
+            y: extent.height * region.origin.y,
+            width: extent.width * region.size.width,
+            height: extent.height * region.size.height
         )
         let croppedImage = ciImage.cropped(to: cropRect)
         

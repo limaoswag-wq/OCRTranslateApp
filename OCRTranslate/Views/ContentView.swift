@@ -1,9 +1,11 @@
 ﻿import SwiftUI
+import ReplayKit
 
 struct ContentView: View {
     @StateObject private var broadcastMonitor = BroadcastMonitor.shared
     @StateObject private var translationManager = TranslationManager.shared
     @State private var showSettings = false
+    @State private var broadcastController: RPBroadcastActivityViewController?
     @State private var showBroadcastPicker = false
     
     var body: some View {
@@ -14,18 +16,14 @@ struct ContentView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Status Card
                         statusCard
-                        
-                        // Start/Stop Button
                         broadcastButton
+                        ocrRegionCard
                         
-                        // Latest Translation
                         if !broadcastMonitor.lastOCRText.isEmpty {
                             translationCard
                         }
                         
-                        // History placeholder
                         historySection
                     }
                     .padding()
@@ -43,6 +41,11 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .overlay {
+                if showBroadcastPicker {
+                    BroadcastPickerOverlay(isShowing: $showBroadcastPicker)
+                }
             }
         }
     }
@@ -102,6 +105,51 @@ struct ContentView: View {
         }
     }
     
+    // MARK: - OCR Region Card
+    
+    private var ocrRegionCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("OCR 识别区域")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 8) {
+                ForEach(OCRRegion.allCases, id: \.self) { region in
+                    Button {
+                        translationManager.config.ocrRegion = region
+                        translationManager.saveSettings()
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: region.icon)
+                                .font(.title3)
+                            Text(region.displayName)
+                                .font(.caption2)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            translationManager.config.ocrRegion == region
+                                ? Color.accentColor.opacity(0.15)
+                                : Color(.tertiarySystemGroupedBackground)
+                        )
+                        .foregroundColor(
+                            translationManager.config.ocrRegion == region
+                                ? .accentColor
+                                : .primary
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+    
     // MARK: - Translation Result Card
     
     private var translationCard: some View {
@@ -111,7 +159,6 @@ struct ContentView: View {
                 .foregroundColor(.secondary)
             
             VStack(alignment: .leading, spacing: 8) {
-                // Original text
                 VStack(alignment: .leading, spacing: 4) {
                     Label("原文", systemImage: "doc.text")
                         .font(.caption)
@@ -123,7 +170,6 @@ struct ContentView: View {
                 
                 Divider()
                 
-                // Translated text
                 VStack(alignment: .leading, spacing: 4) {
                     Label("译文", systemImage: "globe")
                         .font(.caption)
@@ -153,7 +199,7 @@ struct ContentView: View {
                 instructionRow(icon: "1.circle.fill", text: "点击「开始屏幕翻译」按钮")
                 instructionRow(icon: "2.circle.fill", text: "在弹出的系统菜单中选择「开始直播」")
                 instructionRow(icon: "3.circle.fill", text: "切换到需要翻译的应用（如游戏）")
-                instructionRow(icon: "4.circle.fill", text: "悬浮窗将自动显示翻译结果")
+                instructionRow(icon: "4.circle.fill", text: "App 将自动识别屏幕文字并翻译")
                 instructionRow(icon: "5.circle.fill", text: "使用完毕后点击「停止翻译」")
             }
         }
@@ -184,15 +230,45 @@ struct ContentView: View {
             broadcastMonitor.sendStopCommand()
             broadcastMonitor.isBroadcasting = false
         } else {
-            // Trigger the system broadcast picker
             showBroadcastPicker = true
-            // The actual broadcast start is handled by the system
-            // We simulate the state change for UI purposes
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                broadcastMonitor.isBroadcasting = true
-            }
         }
     }
+}
+
+// MARK: - Broadcast Picker Overlay
+
+struct BroadcastPickerOverlay: UIViewRepresentable {
+    @Binding var isShowing: Bool
+    
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+        
+        let picker = RPSystemBroadcastPickerView()
+        picker.preferredExtension = "com.limaoswag.ocrtranslate.ScreenTranslator"
+        picker.showsMicrophoneButton = false
+        picker.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        view.addSubview(picker)
+        picker.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
+        picker.center = view.center
+        
+        // Auto-trigger the picker tap after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            for subview in picker.subviews {
+                if let button = subview as? UIButton {
+                    button.sendActions(for: .allTouchEvents)
+                    break
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isShowing = false
+            }
+        }
+        
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
 struct ContentView_Previews: PreviewProvider {
