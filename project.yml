@@ -13,6 +13,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1,2"
+    ALWAYS_SEARCH_USER_PATHS: false
 
 targets:
   OCRTranslate:
@@ -28,6 +29,7 @@ targets:
       path: OCRTranslate/OCRTranslate.entitlements
     settings:
       base:
+        PRODUCT_NAME: OCRTranslate
         PRODUCT_BUNDLE_IDENTIFIER: com.limaoswag.ocrtranslate
         CODE_SIGN_ENTITLEMENTS: OCRTranslate/OCRTranslate.entitlements
         CODE_SIGN_STYLE: Automatic
@@ -52,6 +54,7 @@ targets:
       path: ScreenTranslator/ScreenTranslator.entitlements
     settings:
       base:
+        PRODUCT_NAME: ScreenTranslator
         PRODUCT_BUNDLE_IDENTIFIER: com.limaoswag.ocrtranslate.ScreenTranslator
         CODE_SIGN_ENTITLEMENTS: ScreenTranslator/ScreenTranslator.entitlements
         CODE_SIGN_STYLE: Automatic
