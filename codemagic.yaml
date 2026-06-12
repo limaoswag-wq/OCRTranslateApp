@@ -7,7 +7,7 @@
     scripts:
       - name: Install xcodegen
         script: |
-          curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.40.0/xcodegen.zip -o xcodegen.zip
+          curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip -o xcodegen.zip
           unzip -o xcodegen.zip
           sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
           sudo chmod +x /usr/local/bin/xcodegen
