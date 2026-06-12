@@ -11,8 +11,6 @@ class TranslationManager: ObservableObject {
     
     private init() {}
     
-    // MARK: - Settings Persistence
-    
     func saveSettings() {
         if let data = try? JSONEncoder().encode(config) {
             defaults.set(data, forKey: configKey)
@@ -24,8 +22,6 @@ class TranslationManager: ObservableObject {
               let saved = try? JSONDecoder().decode(TranslationEngineConfig.self, from: data) else { return }
         config = saved
     }
-    
-    // MARK: - Translation Dispatch
     
     func translate(_ text: String, completion: @escaping (String?) -> Void) {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -47,30 +43,14 @@ class TranslationManager: ObservableObject {
         }
     }
     
-    // MARK: - Apple Translation (Offline)
+    // MARK: - Apple Translation (Language Detection Only)
     
     private func translateWithApple(_ text: String, completion: @escaping (String?) -> Void) {
-        // Use NLTranslator if available (iOS 17+), otherwise detect language only
-        if #available(iOS 17.0, *) {
-            let translator = NLTranslator()
-            let sourceLang = detectLanguage(text) ?? .english
-            let targetLang = languageCodeToNLLanguage(config.targetLanguage) ?? .simplifiedChinese
-            
-            translator.translate(text, from: sourceLang, to: targetLang) { result, error in
-                DispatchQueue.main.async {
-                    if let error = error {
-                        print("[Translation] Apple error: \(error)")
-                        completion("[Apple翻译不可用: \(error.localizedDescription)]")
-                        return
-                    }
-                    completion(result)
-                }
-            }
-        } else {
-            // iOS 15-16: NLTranslator not available, use cloud APIs instead
-            DispatchQueue.main.async {
-                completion("[Apple翻译需要iOS 17+，请使用其他翻译引擎]")
-            }
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+        let lang = recognizer.dominantLanguage?.rawValue ?? "unknown"
+        DispatchQueue.main.async {
+            completion("[检测到: \(lang)] 请在设置中切换为Google或AI翻译引擎")
         }
     }
     
@@ -254,8 +234,6 @@ class TranslationManager: ObservableObject {
         return mapping[code]
     }
 }
-
-// MARK: - MD5 Helper
 
 import CryptoKit
 
