@@ -1,4 +1,4 @@
-import ReplayKit
+﻿import ReplayKit
 import SwiftUI
 import UIKit
 
@@ -78,30 +78,48 @@ struct ContentView: View {
 
     private var broadcastButton: some View {
         ZStack {
-            Button {
-                if broadcastMonitor.isBroadcasting {
+            // Visible button for stop action
+            if broadcastMonitor.isBroadcasting {
+                Button {
                     broadcastMonitor.sendStopCommand()
-                }
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: broadcastMonitor.isBroadcasting ? "stop.circle.fill" : "play.circle.fill")
-                        .font(.title2)
-                    Text(broadcastMonitor.isBroadcasting ? "停止翻译" : "开始屏幕翻译")
-                        .font(.headline)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(broadcastMonitor.isBroadcasting ? Color.red : Color.accentColor)
-                .foregroundColor(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .disabled(!broadcastMonitor.isBroadcasting)
-
-            if !broadcastMonitor.isBroadcasting {
-                BroadcastPickerView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .opacity(0.02)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "stop.circle.fill")
+                            .font(.title2)
+                        Text("停止翻译")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.red)
+                    .foregroundColor(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            } else {
+                // When not broadcasting: show the system broadcast picker
+                // wrapped to look like our styled button
+                ZStack {
+                    // The actual system broadcast picker (transparent overlay)
+                    BroadcastPickerView()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                    
+                    // Visual styling on top
+                    HStack(spacing: 12) {
+                        Image(systemName: "play.circle.fill")
+                            .font(.title2)
+                        Text("开始屏幕翻译")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .allowsHitEvents(false)
+                }
+                .frame(height: 56)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         }
     }
@@ -152,7 +170,7 @@ struct ContentView: View {
                 instructionRow(icon: "2.circle.fill", text: "在系统菜单中选择 ScreenTranslator 并点击「开始直播」")
                 instructionRow(icon: "3.circle.fill", text: "切换到需要翻译的应用")
                 instructionRow(icon: "4.circle.fill", text: "识别区域可在设置中拖拽调整")
-                instructionRow(icon: "5.circle.fill", text: "停止翻译时点击按钮，扩展会收到停止信号")
+                instructionRow(icon: "5.circle.fill", text: "停止翻译时点击按钮")
             }
         }
         .padding()
@@ -176,15 +194,39 @@ struct ContentView: View {
     }
 }
 
+// MARK: - Broadcast Picker
+
 private struct BroadcastPickerView: UIViewRepresentable {
     func makeUIView(context: Context) -> RPSystemBroadcastPickerView {
-        let picker = RPSystemBroadcastPickerView(frame: .zero)
+        let picker = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 300, height: 56))
         picker.preferredExtension = "com.limaoswag.ocrtranslate.ScreenTranslator"
         picker.showsMicrophoneButton = false
+        picker.backgroundColor = .clear
         return picker
     }
 
     func updateUIView(_ uiView: RPSystemBroadcastPickerView, context: Context) {}
+}
+
+// MARK: - Allows Hit Events Modifier
+
+private struct AllowsHitEventsModifier: ViewModifier {
+    let allows: Bool
+    
+    func body(content: Content) -> some View {
+        if allows {
+            content
+        } else {
+            content
+                .overlay(Color.clear.contentShape(Rectangle()))
+        }
+    }
+}
+
+extension View {
+    func allowsHitEvents(_ allows: Bool) -> some View {
+        self
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
