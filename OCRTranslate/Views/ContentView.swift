@@ -63,7 +63,7 @@ struct ContentView: View {
                 
                 Text(currentEngineName)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color(.tertiarySystemFill))
@@ -73,7 +73,7 @@ struct ContentView: View {
             if let lastUpdate = broadcastMonitor.lastUpdateTime {
                 Text("上次更新: \(lastUpdate, style: .relative)前")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -97,7 +97,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(broadcastMonitor.isBroadcasting ? Color.red : Color.accentColor)
-            .foregroundStyle(.white)
+            .foregroundColor(.white)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
@@ -108,14 +108,14 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("最新识别结果")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
             
             VStack(alignment: .leading, spacing: 8) {
                 // Original text
                 VStack(alignment: .leading, spacing: 4) {
                     Label("原文", systemImage: "doc.text")
                         .font(.caption)
-                        .foregroundStyle(.blue)
+                        .foregroundColor(.blue)
                     Text(broadcastMonitor.lastOCRText)
                         .font(.body)
                         .textSelection(.enabled)
@@ -127,7 +127,7 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Label("译文", systemImage: "globe")
                         .font(.caption)
-                        .foregroundStyle(.green)
+                        .foregroundColor(.green)
                     Text(broadcastMonitor.lastTranslatedText)
                         .font(.body)
                         .textSelection(.enabled)
@@ -165,11 +165,11 @@ struct ContentView: View {
     private func instructionRow(icon: String, text: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
-                .foregroundStyle(.accentColor)
+                .foregroundColor(.accentColor)
                 .font(.body)
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
     }
     

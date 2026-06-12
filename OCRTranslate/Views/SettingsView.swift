@@ -98,13 +98,13 @@ struct SettingsView: View {
                         Text("识别频率")
                         Spacer()
                         Text("每 1.5 秒")
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                     HStack {
                         Text("变化阈值")
                         Spacer()
                         Text("15%")
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 } header: {
                     Text("OCR 设置")
@@ -118,7 +118,7 @@ struct SettingsView: View {
                         Text("版本")
                         Spacer()
                         Text("1.0.0")
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 } header: {
                     Text("关于")
@@ -191,7 +191,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Prompt 提示词")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                 
                 TextEditor(text: $translationManager.config.aiPrompt)
                     .frame(minHeight: 120)
