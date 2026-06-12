@@ -19,7 +19,7 @@ struct SettingsView: View {
         ("pt", "Português"),
         ("ru", "Русский"),
         ("ar", "العربية"),
-        ("th", "ไทย"),
+        ("th", "ภาษาไทย"),
         ("vi", "Tiếng Việt"),
         ("it", "Italiano"),
         ("nl", "Nederlands"),

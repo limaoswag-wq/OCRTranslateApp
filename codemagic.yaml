@@ -1,4 +1,4 @@
-﻿workflows:
+workflows:
   ocr-translate-ipa:
     name: Build OCR Translate IPA
     max_build_duration: 30
@@ -35,25 +35,15 @@
       - name: Package IPA
         script: |
           set -euo pipefail
-          
           APP_PATH="build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app"
           WORK_DIR="build/ipa_staging"
-          
           rm -rf "$WORK_DIR"
           mkdir -p "$WORK_DIR/Payload"
           cp -R "$APP_PATH" "$WORK_DIR/Payload/"
-          
-          # Verify Extension
-          echo "=== Extension check ==="
-          ls -la "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/"
-          ls -la "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex/"
-          
-          # Create IPA
+          test -d "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex"
           cd "$WORK_DIR"
-          zip -r "$CM_BUILD_DIR/OCRTranslate.ipa" Payload
-          
-          # Verify
-          echo "=== IPA contents ==="
+          zip -r "$CM_BUILD_DIR/OCRTranslate.ipa" Payload/
+          echo "=== IPA verification ==="
           unzip -l "$CM_BUILD_DIR/OCRTranslate.ipa" | grep -E "PlugIns|ScreenTranslator"
 
     artifacts:

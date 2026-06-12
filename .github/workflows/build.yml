@@ -1,4 +1,4 @@
-﻿name: Build IPA
+name: Build IPA
 
 on:
   push:
@@ -49,11 +49,17 @@ jobs:
     - name: Package IPA
       if: success()
       run: |
-        cd build/OCRTranslate.xcarchive/Products
-        mkdir -p Payload
-        mv Applications/OCRTranslate.app Payload/
-        zip -r ../../../OCRTranslate.ipa Payload
-        ls -la ../../../OCRTranslate.ipa
+        set -euo pipefail
+        APP_PATH="build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app"
+        WORK_DIR="build/ipa_staging"
+        rm -rf "$WORK_DIR"
+        mkdir -p "$WORK_DIR/Payload"
+        cp -R "$APP_PATH" "$WORK_DIR/Payload/"
+        test -d "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex"
+        cd "$WORK_DIR"
+        zip -r "$GITHUB_WORKSPACE/OCRTranslate.ipa" Payload/
+        echo "=== IPA verification ==="
+        unzip -l "$GITHUB_WORKSPACE/OCRTranslate.ipa" | grep -E "PlugIns|ScreenTranslator"
 
     - name: Upload IPA
       if: success()

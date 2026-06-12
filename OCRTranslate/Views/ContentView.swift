@@ -1,4 +1,4 @@
-﻿import ReplayKit
+import ReplayKit
 import SwiftUI
 import UIKit
 
@@ -78,7 +78,6 @@ struct ContentView: View {
 
     private var broadcastButton: some View {
         ZStack {
-            // Visible button for stop action
             if broadcastMonitor.isBroadcasting {
                 Button {
                     broadcastMonitor.sendStopCommand()
@@ -96,15 +95,11 @@ struct ContentView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
             } else {
-                // When not broadcasting: show the system broadcast picker
-                // wrapped to look like our styled button
                 ZStack {
-                    // The actual system broadcast picker (transparent overlay)
                     BroadcastPickerView()
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                    
-                    // Visual styling on top
+
                     HStack(spacing: 12) {
                         Image(systemName: "play.circle.fill")
                             .font(.title2)
