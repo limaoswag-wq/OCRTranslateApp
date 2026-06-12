@@ -34,10 +34,13 @@
 
       - name: Package IPA
         script: |
+          set -euo pipefail
           cd build/OCRTranslate.xcarchive/Products
+          rm -rf Payload
           mkdir -p Payload
-          mv Applications/OCRTranslate.app Payload/
-          zip -r "$CM_BUILD_DIR/OCRTranslate.ipa" Payload
+          cp -R Applications/OCRTranslate.app Payload/
+          test -d Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex
+          ditto -c -k --sequesterRsrc --keepParent Payload "$CM_BUILD_DIR/OCRTranslate.ipa"
 
     artifacts:
       - build/OCRTranslate.xcarchive

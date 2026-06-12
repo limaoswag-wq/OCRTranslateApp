@@ -116,7 +116,7 @@ struct ContentView: View {
                     .background(Color.accentColor)
                     .foregroundColor(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .allowsHitEvents(false)
+                    .allowsHitTesting(false)
                 }
                 .frame(height: 56)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -208,26 +208,6 @@ private struct BroadcastPickerView: UIViewRepresentable {
     func updateUIView(_ uiView: RPSystemBroadcastPickerView, context: Context) {}
 }
 
-// MARK: - Allows Hit Events Modifier
-
-private struct AllowsHitEventsModifier: ViewModifier {
-    let allows: Bool
-    
-    func body(content: Content) -> some View {
-        if allows {
-            content
-        } else {
-            content
-                .overlay(Color.clear.contentShape(Rectangle()))
-        }
-    }
-}
-
-extension View {
-    func allowsHitEvents(_ allows: Bool) -> some View {
-        self
-    }
-}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
