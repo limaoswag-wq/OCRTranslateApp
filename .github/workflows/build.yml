@@ -33,7 +33,11 @@ jobs:
           -scheme OCRTranslate \
           -configuration Release \
           -archivePath build/OCRTranslate.xcarchive \
-          -destination "generic/platform=iOS"
+          -destination "generic/platform=iOS" \
+          CODE_SIGN_IDENTITY="-" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM=""
 
     - name: Package IPA
       if: success()
@@ -42,6 +46,7 @@ jobs:
         mkdir -p Payload
         mv Applications/OCRTranslate.app Payload/
         zip -r ../../../OCRTranslate.ipa Payload
+        ls -la ../../../OCRTranslate.ipa
 
     - name: Upload IPA
       if: success()
