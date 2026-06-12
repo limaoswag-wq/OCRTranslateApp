@@ -14,15 +14,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup
-      run: |
-        curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.35.0/xcodegen.zip -o xcodegen.zip
-        unzip -o xcodegen.zip
-        sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
-        sudo chmod +x /usr/local/bin/xcodegen
-        xcodegen generate
-        xcodebuild -project OCRTranslate.xcodeproj -list
-
     - name: Build Archive
       run: |
         set -o pipefail
