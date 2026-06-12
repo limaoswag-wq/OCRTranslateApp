@@ -4,9 +4,7 @@
     max_build_duration: 30
     environment:
       xcode: 16.0
-      vars:
-        APP_STORE_CONNECT_API_KEY_ID: X8U6B47G6S
-        APP_STORE_CONNECT_API_ISSUER_ID: "06d98447-1c1c-47a2-8ee4-5b5b8f3b4f7b"
+      apple_id: 75097269@qq.com
     ios_signing:
       distribution_type: development
       bundle_id: com.limaoswag.ocrtranslate
@@ -32,8 +30,7 @@
             -scheme OCRTranslate \
             -configuration Release \
             -archivePath build/OCRTranslate.xcarchive \
-            -destination "generic/platform=iOS" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM"
+            -destination "generic/platform=iOS"
 
       - name: Package IPA
         script: |
