@@ -1,0 +1,53 @@
+name: OCRTranslate
+options:
+  bundleIdPrefix: com.limaoswag
+  deploymentTarget:
+    iOS: "15.0"
+  developmentLanguage: zh-Hans
+
+settings:
+  base:
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+
+targets:
+  OCRTranslate:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: OCRTranslate/App
+      - path: OCRTranslate/Views
+      - path: OCRTranslate/Resources
+      - path: Shared
+    info:
+      path: OCRTranslate/Info.plist
+    entitlements:
+      path: OCRTranslate/OCRTranslate.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.limaoswag.ocrtranslate
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - target: ScreenTranslator
+        embed: true
+        codeSign: false
+
+  ScreenTranslator:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: ScreenTranslator
+      - path: Shared
+    info:
+      path: ScreenTranslator/Info.plist
+    entitlements:
+      path: ScreenTranslator/ScreenTranslator.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.limaoswag.ocrtranslate.ScreenTranslator

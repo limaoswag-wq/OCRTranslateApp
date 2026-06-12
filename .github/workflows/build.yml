@@ -14,6 +14,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Install xcodegen
+      run: |
+        curl -L https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip -o xcodegen.zip
+        unzip -o xcodegen.zip
+        sudo cp xcodegen/bin/xcodegen /usr/local/bin/xcodegen
+        sudo chmod +x /usr/local/bin/xcodegen
+        xcodegen version
+
+    - name: Generate Xcode project
+      run: xcodegen generate
+
     - name: Build Archive
       run: |
         set -o pipefail
@@ -22,13 +33,7 @@ jobs:
           -scheme OCRTranslate \
           -configuration Release \
           -archivePath build/OCRTranslate.xcarchive \
-          -destination "generic/platform=iOS" \
-          CODE_SIGN_IDENTITY="-" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          DEVELOPMENT_TEAM="" \
-          ENABLE_BITCODE=NO \
-          2>&1 | tail -100
+          -destination "generic/platform=iOS"
 
     - name: Package IPA
       if: success()
@@ -37,7 +42,6 @@ jobs:
         mkdir -p Payload
         mv Applications/OCRTranslate.app Payload/
         zip -r ../../../OCRTranslate.ipa Payload
-        ls -la ../../../OCRTranslate.ipa
 
     - name: Upload IPA
       if: success()
