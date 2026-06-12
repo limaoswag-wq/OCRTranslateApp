@@ -14,11 +14,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+    - name: List available Xcode versions
+      run: ls /Applications/ | grep Xcode
 
-    - name: Build for Archive
+    - name: Select Xcode
       run: |
+        sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer || \
+        sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer || \
+        sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer
+        xcodebuild -version
+
+    - name: Build Archive
+      run: |
+        set -o pipefail
         xcodebuild clean archive \
           -project OCRTranslate.xcodeproj \
           -scheme OCRTranslate \
@@ -30,20 +38,21 @@ jobs:
           CODE_SIGNING_ALLOWED=NO \
           DEVELOPMENT_TEAM="" \
           ENABLE_BITCODE=NO \
-          | xcpretty
+          2>&1 | tail -200
 
     - name: Package IPA
+      if: success()
       run: |
         cd build/OCRTranslate.xcarchive/Products
         mkdir -p Payload
         mv Applications/OCRTranslate.app Payload/
-        zip -r ../../OCRTranslate.ipa Payload
-        cd ../..
-        ls -la OCRTranslate.ipa
+        zip -r ../../../OCRTranslate.ipa Payload
+        ls -la ../../../OCRTranslate.ipa
 
     - name: Upload IPA Artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: OCRTranslate-IPA
-        path: build/OCRTranslate.ipa
+        path: OCRTranslate.ipa
         retention-days: 90
