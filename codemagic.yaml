@@ -30,18 +30,44 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM=""
 
+      - name: Debug archive contents
+        script: |
+          echo "=== Archive .app ==="
+          ls -la build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/
+          echo ""
+          echo "=== PlugIns ==="
+          ls -laR build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/
+          echo ""
+          echo "=== Main executable ==="
+          file build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/OCRTranslate
+          echo ""
+          echo "=== Extension executable ==="
+          file build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/ScreenTranslator.appex/ScreenTranslator
+
       - name: Package IPA
         script: |
           set -euo pipefail
           APP_PATH="build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app"
-          WORK_DIR="build/ipa_staging"
+          WORK_DIR="/tmp/ipa_build"
           rm -rf "$WORK_DIR"
           mkdir -p "$WORK_DIR/Payload"
           cp -R "$APP_PATH" "$WORK_DIR/Payload/"
+          
+          # Verify extension exists
           test -d "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex"
+          
+          # Remove any xattr that could cause issues
+          xattr -cr "$WORK_DIR/Payload" 2>/dev/null || true
+          
+          # Create IPA from inside the staging dir
           cd "$WORK_DIR"
-          zip -r "$CM_BUILD_DIR/OCRTranslate.ipa" Payload/
-          echo "=== IPA verification ==="
+          zip -ry "$CM_BUILD_DIR/OCRTranslate.ipa" Payload/
+          
+          # Verify IPA structure - first entry must be Payload/
+          echo "=== IPA first 20 entries ==="
+          unzip -l "$CM_BUILD_DIR/OCRTranslate.ipa" | head -20
+          echo ""
+          echo "=== IPA Extension entries ==="
           unzip -l "$CM_BUILD_DIR/OCRTranslate.ipa" | grep -E "PlugIns|ScreenTranslator"
 
     artifacts:
