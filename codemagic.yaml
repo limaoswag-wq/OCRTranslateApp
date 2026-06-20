@@ -1,4 +1,4 @@
-workflows:
+﻿workflows:
   ocr-translate-ipa:
     name: Build OCR Translate IPA
     max_build_duration: 30
@@ -30,19 +30,39 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM=""
 
+      - name: ldid fakesign (TrollStore requirement)
+        script: |
+          brew install ldid
+          
+          APP_PATH="build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app"
+          
+          # Fakesign main app binary with its entitlements
+          ldid -S"OCRTranslate/OCRTranslate.entitlements" "$APP_PATH/OCRTranslate"
+          echo "Main app signed."
+          
+          # Fakesign extension binary with its own entitlements (critical step!)
+          ldid -S"ScreenTranslator/ScreenTranslator.entitlements" "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator"
+          echo "Extension signed."
+          
+          # Verify signatures exist
+          ldid -e "$APP_PATH/OCRTranslate" | head -20
+          echo "---"
+          ldid -e "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator" | head -20
+
       - name: Debug archive contents
         script: |
-          echo "=== Archive .app ==="
-          ls -la build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/
+          APP_PATH="build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app"
+          echo "=== .app ==="
+          ls -la "$APP_PATH/"
           echo ""
           echo "=== PlugIns ==="
-          ls -laR build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/
+          ls -laR "$APP_PATH/PlugIns/"
           echo ""
           echo "=== Main executable ==="
-          file build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/OCRTranslate
+          file "$APP_PATH/OCRTranslate"
           echo ""
           echo "=== Extension executable ==="
-          file build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app/PlugIns/ScreenTranslator.appex/ScreenTranslator
+          file "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator"
 
       - name: Package IPA
         script: |
@@ -52,21 +72,10 @@ workflows:
           rm -rf "$WORK_DIR"
           mkdir -p "$WORK_DIR/Payload"
           cp -R "$APP_PATH" "$WORK_DIR/Payload/"
-          
-          # Verify extension exists
           test -d "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex"
-          
-          # Remove any xattr that could cause issues
           xattr -cr "$WORK_DIR/Payload" 2>/dev/null || true
-          
-          # Create IPA from inside the staging dir
           cd "$WORK_DIR"
           zip -ry "$CM_BUILD_DIR/OCRTranslate.ipa" Payload/
-          
-          # Verify IPA structure - first entry must be Payload/
-          echo "=== IPA first 20 entries ==="
-          unzip -l "$CM_BUILD_DIR/OCRTranslate.ipa" | head -20
-          echo ""
           echo "=== IPA Extension entries ==="
           unzip -l "$CM_BUILD_DIR/OCRTranslate.ipa" | grep -E "PlugIns|ScreenTranslator"
 
