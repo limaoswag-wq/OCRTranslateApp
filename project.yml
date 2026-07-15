@@ -30,6 +30,8 @@ targets:
     info:
       path: OCRTranslate/Info.plist
       properties:
+        CFBundleShortVersionString: "1.0.1"
+        CFBundleVersion: "2"
         CFBundleDisplayName: "OCR屏幕翻译"
     entitlements:
       path: OCRTranslate/OCRTranslate.entitlements
