@@ -58,6 +58,14 @@ targets:
       - path: Shared
     info:
       path: ScreenTranslator/Info.plist
+      properties:
+        CFBundleShortVersionString: "1.0.1"
+        CFBundleVersion: "2"
+        NSExtension:
+          NSExtensionAttributes:
+            RPBroadcastProcessMode: "RPBroadcastProcessModeSampleBuffer"
+          NSExtensionPointIdentifier: "com.apple.broadcast-services-upload"
+          NSExtensionPrincipalClass: "ScreenTranslator.SampleHandler"
     entitlements:
       path: ScreenTranslator/ScreenTranslator.entitlements
     settings:
