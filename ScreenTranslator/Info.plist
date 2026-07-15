@@ -28,7 +28,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.broadcast-services-upload</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).SampleHandler</string>
+		<string>ScreenTranslator.SampleHandler</string>
 	</dict>
 </dict>
 </plist>

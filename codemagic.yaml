@@ -54,6 +54,11 @@ workflows:
           set -euo pipefail
           APP_PATH="build/OCRTranslate.xcarchive/Products/Applications/OCRTranslate.app"
 
+          /usr/libexec/PlistBuddy -c "Print :NSExtension:NSExtensionPointIdentifier" "$APP_PATH/PlugIns/ScreenTranslator.appex/Info.plist" | grep -Fx "com.apple.broadcast-services-upload"
+          /usr/libexec/PlistBuddy -c "Print :NSExtension:NSExtensionPrincipalClass" "$APP_PATH/PlugIns/ScreenTranslator.appex/Info.plist" | grep -Fx "ScreenTranslator.SampleHandler"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_PATH/Info.plist" | grep -Fx "1.0.1"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_PATH/PlugIns/ScreenTranslator.appex/Info.plist" | grep -Fx "1.0.1"
+
           echo "=== Fakesigning main app binary ==="
           ldid -S"OCRTranslate/OCRTranslate.entitlements" "$APP_PATH/OCRTranslate"
 
@@ -75,6 +80,8 @@ workflows:
           mkdir -p "$WORK_DIR/Payload"
           cp -R "$APP_PATH" "$WORK_DIR/Payload/"
           test -d "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex"
+          /usr/libexec/PlistBuddy -c "Print :NSExtension:NSExtensionPointIdentifier" "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex/Info.plist" | grep -Fx "com.apple.broadcast-services-upload"
+          /usr/libexec/PlistBuddy -c "Print :NSExtension:NSExtensionPrincipalClass" "$WORK_DIR/Payload/OCRTranslate.app/PlugIns/ScreenTranslator.appex/Info.plist" | grep -Fx "ScreenTranslator.SampleHandler"
           xattr -cr "$WORK_DIR/Payload" 2>/dev/null || true
           cd "$WORK_DIR"
           zip -ry "$CM_BUILD_DIR/OCRTranslate.ipa" Payload/
