@@ -69,10 +69,17 @@ workflows:
           ldid -S"ScreenTranslator/ScreenTranslator.entitlements" "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator"
 
           echo "=== Verifying entitlements on main app ==="
-          ldid -e "$APP_PATH/OCRTranslate" || true
+          MAIN_ENTITLEMENTS="$(ldid -e "$APP_PATH/OCRTranslate")"
+          test -n "$MAIN_ENTITLEMENTS"
+          printf '%s\n' "$MAIN_ENTITLEMENTS"
 
           echo "=== Verifying entitlements on extension ==="
-          ldid -e "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator" || true
+          EXT_ENTITLEMENTS="$(ldid -e "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator")"
+          test -n "$EXT_ENTITLEMENTS"
+          printf '%s\n' "$EXT_ENTITLEMENTS"
+
+          echo "=== Mach-O signature load commands ==="
+          otool -l "$APP_PATH/PlugIns/ScreenTranslator.appex/ScreenTranslator" | grep -A3 LC_CODE_SIGNATURE
 
       - name: Package IPA
         script: |
